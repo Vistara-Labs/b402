@@ -297,6 +297,17 @@
     </div>
 
     <script>
+        // ✅ LOADING BUTTON STATE
+        function setButtonLoading(buttonId, isLoading) {
+            const btn = document.getElementById(buttonId);
+            if (!btn) return;
+            if (!btn.getAttribute('data-original')) {
+                btn.setAttribute('data-original', btn.textContent);
+            }
+            btn.disabled = isLoading;
+            btn.textContent = isLoading ? '⏳ Please wait...' : btn.getAttribute('data-original');
+        }
+
         // Configuration - MAINNET
         const FACILITATOR_URL = 'http://localhost:3402'; // Change this after Railway deployment!
         const RELAYER_CONTRACT = '0xE1C2830d5DDd6B49E9c46EbE03a98Cb44CD8eA5a';
@@ -313,6 +324,7 @@
         let provider, signer, userAddress, usdtContract;
 
         async function connectWallet() {
+            setButtonLoading('connectBtn', true);
             try {
                 if (typeof window.ethereum === 'undefined') {
                     showStatus('Please install MetaMask!', 'error');
@@ -365,6 +377,8 @@
                 console.error(error);
                 showStatus('Connection failed: ' + error.message, 'error');
                 showLoading(false);
+            } finally {
+                setButtonLoading('connectBtn', false);
             }
         }
 
@@ -382,6 +396,7 @@
         }
 
         async function approveRelayer() {
+            setButtonLoading('approveBtn', true);
             try {
                 showLoading(true);
                 showStatus('⏳ Approving relayer... (This will cost ~$0.10 in gas)', 'info');
@@ -404,10 +419,13 @@
                 console.error(error);
                 showStatus('Approval failed: ' + error.message, 'error');
                 showLoading(false);
+            } finally {
+                setButtonLoading('approveBtn', false);
             }
         }
 
         async function sendPayment() {
+            setButtonLoading('sendBtn', true);
             try {
                 const recipient = document.getElementById('recipientAddress').value;
                 const amount = document.getElementById('amount').value;
@@ -528,6 +546,9 @@
                 console.error(error);
                 showStatus('Payment failed: ' + error.message, 'error');
                 showLoading(false);
+            } finally {
+                showLoading(false);
+                setButtonLoading('sendBtn', false);
             }
         }
 
